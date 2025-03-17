@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: carbond-config
+  namespace: app
+data:
+  APP_NAME: "carbond-intl-app-gw"
+  FILE_LOG_PATTERN: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  HEALTH_ENDPOINT: "/healthz"
+  READY_ENDPOINT: "/ready"
