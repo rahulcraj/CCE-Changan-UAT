@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: carbond-intl-app-gw
+  namespace: app
+spec:
+  replicas: 2  # Increased for HA
+  selector:
+    matchLabels:
+      app: carbond-intl-app-gw
+  template:
+    metadata:
+      labels:
+        app: carbond-intl-app-gw
+    spec:
+      imagePullSecrets:
+      - name: image-secret
+      containers:
+      - name: carbond-intl-app-gw
+        image: swr.me-east-1.myhuaweicloud.com/ca-tsp/carbond-intl-app-gw:e766ab6_develop_20231220135109_1
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 2Gi
+            cpu: "500m"
+          requests:
+            memory: 1Gi
+            cpu: "250m"
+        env:
+        - name: APP_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: carbond-config
+              key: APP_NAME
+        - name: FILE_LOG_PATTERN
+          valueFrom:
+            configMapKeyRef:
+              name: carbond-config
+              key: FILE_LOG_PATTERN
+        - name: HEALTH_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: carbond-config
+              key: HEALTH_ENDPOINT
+        - name: READY_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: carbond-config
+              key: READY_ENDPOINT
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 3
